@@ -144,7 +144,196 @@
             }
         }
 
-        // Business Logic Functions
+        // Import/Export Functions
+        function handleImportMembers(fileContent) {
+            try {
+                const lines = fileContent.split('\n').filter(l => l.trim());
+                const imported = [];
+                
+                // Skip header if exists
+                const startIdx = lines[0].match(/^Name,Eligible$/i) ? 1 : 0;
+                
+                for (let i = startIdx; i < lines.length; i++) {
+                    const parts = lines[i].split(',');
+                    if (parts[0].trim()) {
+                        const name = parts[0].trim();
+                        const eligible = parts.length > 1 ? parts[1].trim().toLowerCase() === 'true' : true;
+                        
+                        // Don't duplicate existing members
+                        if (!state.members.find(m => m.name === name)) {
+                            imported.push({ name, eligible });
+                        }
+                    }
+                }
+                
+                if (imported.length > 0) {
+                    state.members.push(...imported);
+                    saveToFirebase('members', state.members);
+                    alert(`Successfully imported ${imported.length} members!`);
+                    render();
+                } else {
+                    alert('No new members to import.');
+                }
+            } catch (error) {
+                alert('Error importing members: ' + error.message);
+            }
+        }
+
+        function handleImportMVPHistory(fileContent) {
+            try {
+                const lines = fileContent.split('\n').filter(l => l.trim());
+                let imported = 0;
+                
+                for (const line of lines) {
+                    const parts = line.split('||').map(p => p.trim());
+                    if (parts.length >= 3) {
+                        const entry = {
+                            date: parts[0],
+                            event: parts[1],
+                            member: parts[2],
+                            timestamp: new Date(parts[0]).toISOString()
+                        };
+                        
+                        // Check if entry already exists
+                        const exists = state.mvpHistory.some(e => 
+                            e.date === entry.date && e.event === entry.event && e.member === entry.member
+                        );
+                        
+                        if (!exists) {
+                            state.mvpHistory.push(entry);
+                            imported++;
+                        }
+                    }
+                }
+                
+                if (imported > 0) {
+                    // Keep only recent history based on member count
+                    state.mvpHistory = state.mvpHistory.slice(-Math.max(state.members.length, 35));
+                    saveToFirebase('mvpHistory', state.mvpHistory);
+                    alert(`Successfully imported ${imported} MVP history entries!`);
+                    render();
+                } else {
+                    alert('No new MVP history to import.');
+                }
+            } catch (error) {
+                alert('Error importing MVP history: ' + error.message);
+            }
+        }
+
+        function handleImportTitleHistory(fileContent) {
+            try {
+                const lines = fileContent.split('\n').filter(l => l.trim());
+                let imported = 0;
+                
+                for (const line of lines) {
+                    const parts = line.split('||').map(p => p.trim());
+                    if (parts.length >= 3) {
+                        const entry = {
+                            timestamp: parts[0],
+                            title: parts[1],
+                            member: parts[2]
+                        };
+                        
+                        // Check if entry already exists
+                        const exists = state.titleHistory.some(e => 
+                            e.timestamp === entry.timestamp && e.title === entry.title && e.member === entry.member
+                        );
+                        
+                        if (!exists) {
+                            state.titleHistory.push(entry);
+                            imported++;
+                        }
+                    }
+                }
+                
+                if (imported > 0) {
+                    state.titleHistory = state.titleHistory.slice(-30);
+                    saveToFirebase('titleHistory', state.titleHistory);
+                    alert(`Successfully imported ${imported} title history entries!`);
+                    render();
+                } else {
+                    alert('No new title history to import.');
+                }
+            } catch (error) {
+                alert('Error importing title history: ' + error.message);
+            }
+        }
+
+        function showImportDialog() {
+            const importType = prompt('What would you like to import?\\n\\n1 - Members (members.csv)\\n2 - MVP History (mvp_history_details.txt)\\n3 - Title History (mvp_title.txt)\\n\\nEnter number (1, 2, or 3):');
+            
+            if (!importType || !['1', '2', '3'].includes(importType)) {
+                return;
+            }
+            
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = importType === '1' ? '.csv' : '.txt';
+            
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const content = event.target.result;
+                    
+                    if (importType === '1') {
+                        handleImportMembers(content);
+                    } else if (importType === '2') {
+                        handleImportMVPHistory(content);
+                    } else if (importType === '3') {
+                        handleImportTitleHistory(content);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        function exportData() {
+            const exportType = prompt('What would you like to export?\\n\\n1 - Members\\n2 - MVP History\\n3 - Title History\\n4 - All Data\\n\\nEnter number (1, 2, 3, or 4):');
+            
+            if (!exportType || !['1', '2', '3', '4'].includes(exportType)) {
+                return;
+            }
+            
+            let data, filename, mimeType;
+            
+            if (exportType === '1') {
+                data = 'Name,Eligible\\n' + state.members.map(m => `${m.name},${m.eligible}`).join('\\n');
+                filename = 'members.csv';
+                mimeType = 'text/csv';
+            } else if (exportType === '2') {
+                data = state.mvpHistory.map(e => `${e.date} || ${e.event} || ${e.member}`).join('\\n');
+                filename = 'mvp_history_details.txt';
+                mimeType = 'text/plain';
+            } else if (exportType === '3') {
+                data = state.titleHistory.map(e => `${e.timestamp} || ${e.title} || ${e.member}`).join('\\n');
+                filename = 'mvp_title_history.txt';
+                mimeType = 'text/plain';
+            } else if (exportType === '4') {
+                data = JSON.stringify({
+                    members: state.members,
+                    mvpHistory: state.mvpHistory,
+                    titleHistory: state.titleHistory,
+                    events: state.events
+                }, null, 2);
+                filename = 'mvp_selector_backup.json';
+                mimeType = 'application/json';
+            }
+            
+            const blob = new Blob([data], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            alert(`Exported ${filename} successfully!`);
+        }
         function getEligibleMembers() {
             return state.members.filter(m => m.eligible);
         }
@@ -431,6 +620,12 @@
                                     <button onclick="state.showAdminModal = true; render();" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
                                         <span class="w-5 h-5">${Icons.Users()}</span>
                                         Member Admin
+                                    </button>
+                                    <button onclick="showImportDialog()" class="bg-blue-500/50 hover:bg-blue-600/50 text-white px-4 py-2 rounded-lg transition">
+                                        📥 Import
+                                    </button>
+                                    <button onclick="exportData()" class="bg-green-500/50 hover:bg-green-600/50 text-white px-4 py-2 rounded-lg transition">
+                                        📤 Export
                                     </button>
                                     <button onclick="handleLogout()" class="bg-red-500/50 hover:bg-red-600/50 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
                                         <span class="w-5 h-5">${Icons.LogOut()}</span>
