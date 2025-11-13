@@ -52,7 +52,7 @@
         let state = {
             user: null,
             members: [],
-            events: ['Bandit Attack', 'Battle Royale', 'Kingdom War', 'Territory War', 'Alliance War'],
+            events: [],
             mvpHistory: [],
             titleHistory: [],
             selectedEvent: '',
@@ -63,7 +63,9 @@
             selectedMemberForTitle: '',
             selectedMemberForManual: '',
             showAdminModal: false,
+            showEventModal: false,
             newMemberName: '',
+            newEventName: '',
             loading: true,
             loginEmail: '',
             loginPassword: ''
@@ -99,7 +101,11 @@
                 // Load events
                 const eventsDoc = await db.collection('users').doc(userId).collection('data').doc('events').get();
                 if (eventsDoc.exists) {
-                    state.events = eventsDoc.data().list || state.events;
+                    state.events = eventsDoc.data().list || [];
+                } else {
+                    // Set default events if none exist
+                    state.events = ['Alliance EXP Growth', 'Alliance Arena', 'Battle of Ruins', 'Chess','Dragon Treasure Hunt', 'Mysterious Desert', 'Mystery Murder'];
+                    await saveToFirebase('events', state.events);
                 }
 
                 state.loading = false;
@@ -260,7 +266,11 @@
         }
 
         function showImportDialog() {
-            const importType = prompt('What would you like to import?\\n\\n1 - Members (members.csv)\\n2 - MVP History (mvp_history_details.txt)\\n3 - Title History (mvp_title.txt)\\n\\nEnter number (1, 2, or 3):');
+            const importType = prompt('What would you like to import? \n' + 
+                                      '~ 1: Members (members.csv) \n' + 
+                                      '~ 2: MVP History (mvp_history_details.txt) \n' + 
+                                      '~ 3: Title History (mvp_title.txt) \n\n' +
+                                      'Enter number (1, 2, or 3):');
             
             if (!importType || !['1', '2', '3'].includes(importType)) {
                 return;
@@ -621,6 +631,9 @@
                                         <span class="w-5 h-5">${Icons.Users()}</span>
                                         Member Admin
                                     </button>
+                                    <button onclick="state.showEventModal = true; render();" class="bg-purple-500/50 hover:bg-purple-600/50 text-white px-4 py-2 rounded-lg transition">
+                                        📅 Events
+                                    </button>
                                     <button onclick="showImportDialog()" class="bg-blue-500/50 hover:bg-blue-600/50 text-white px-4 py-2 rounded-lg transition">
                                         📥 Import
                                     </button>
@@ -828,6 +841,59 @@
                             </div>
                         </div>
                     ` : ''}
+
+                    <!-- Event Modal -->
+                    ${state.showEventModal ? `
+                        <div class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+                            <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                                        📅
+                                        Event Management
+                                    </h2>
+                                    <button onclick="state.showEventModal = false; render();" class="text-white hover:text-red-400 transition">
+                                        <span class="w-6 h-6">${Icons.X()}</span>
+                                    </button>
+                                </div>
+
+                                <div class="mb-6">
+                                    <label class="block text-white mb-2 font-semibold">Add New Event</label>
+                                    <div class="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            id="newEventInput"
+                                            value="${state.newEventName}"
+                                            placeholder="Enter event name"
+                                            class="flex-1 px-4 py-2 rounded-lg bg-white/10 text-white border border-white/30 placeholder-white/50"
+                                        />
+                                        <button onclick="addEvent()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition">
+                                            <span class="w-5 h-5">${Icons.Plus()}</span>
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 class="text-white font-semibold mb-3">Events</h3>
+                                    <div class="space-y-2 max-h-96 overflow-y-auto">
+                                        ${state.events.sort().map(event => `
+                                            <div class="bg-white/10 rounded-lg p-3 flex items-center justify-between">
+                                                <span class="text-white font-medium">${event}</span>
+                                                <button onclick="removeEvent('${event.replace(/'/g, "\\'")}')\" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition">
+                                                    <span class="w-4 h-4">${Icons.Trash2()}</span>
+                                                </button>
+                                            </div>
+                                        `).join('')}
+                                        ${state.events.length === 0 ? '<p class="text-white/50 text-center py-4">No events yet. Add your first event above!</p>' : ''}
+                                    </div>
+                                </div>
+
+                                <button onclick="state.showEventModal = false; render();" class="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
 
@@ -840,6 +906,19 @@
                 newMemberInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
                         addMember();
+                    }
+                });
+            }
+
+            // Add event listener for new event input
+            const newEventInput = document.getElementById('newEventInput');
+            if (newEventInput) {
+                newEventInput.addEventListener('input', (e) => {
+                    state.newEventName = e.target.value;
+                });
+                newEventInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        addEvent();
                     }
                 });
             }
