@@ -9,22 +9,22 @@ If you already have some data you would like to feed it, you can do so by Import
 
 IMPORTANT! - File formats currently used for upload:
 
-  Members file:
-    Name,Eligible
-    John,True
-    Sarah,False
-    Mike,True
-    ...
+  Members file:  
+    &nbsp;&nbsp;&nbsp;&nbsp;Name,Eligible  
+    &nbsp;&nbsp;&nbsp;&nbsp;John,True  
+    &nbsp;&nbsp;&nbsp;&nbsp;Sarah,False  
+    &nbsp;&nbsp;&nbsp;&nbsp;Mike,True  
+    &nbsp;&nbsp;&nbsp;&nbsp;...  
 
-  MVP History (.TXT):
-  ...
-  2025-01-10 || Siege of the Undead || John
-  2025-01-09 || Chess CS || Sarah
-  2025-01-08 || Alliance EXP Growth || Mike
-  ...
+  MVP History (.TXT):  
+  &nbsp;&nbsp;&nbsp;&nbsp;...  
+  &nbsp;&nbsp;&nbsp;&nbsp;2025-01-10 || Siege of the Undead || John  
+  &nbsp;&nbsp;&nbsp;&nbsp;2025-01-09 || Chess CS || Sarah  
+  &nbsp;&nbsp;&nbsp;&nbsp;2025-01-08 || Alliance EXP Growth || Mike  
+  &nbsp;&nbsp;&nbsp;&nbsp;...  
   
-  Title History (.TXT):
-  ...
-  2025-01-15T10:30:00 || King (Ally) || John
-  2025-01-10T14:20:00 || Duke || Sarah
-  2025-01-05T09:15:00 || Earl || Mike
+  Title History (.TXT):  
+  &nbsp;&nbsp;&nbsp;&nbsp;...  
+  &nbsp;&nbsp;&nbsp;&nbsp;2025-01-15T10:30:00 || King (Ally) || John  
+  &nbsp;&nbsp;&nbsp;&nbsp;2025-01-10T14:20:00 || Duke || Sarah  
+  &nbsp;&nbsp;&nbsp;&nbsp;2025-01-05T09:15:00 || Earl || Mike  
