@@ -15,6 +15,26 @@
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; }
         .spinner { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid white; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Fix dropdown text color */
+        select option {
+            background-color: #1e293b;
+            color: white;
+        }
+        
+        /* COLOR THEME VARIABLES - CHANGE THESE TO CUSTOMIZE! */
+        :root {
+            --primary-gradient-start: #9333ea;  /* Purple */
+            --primary-gradient-end: #2563eb;    /* Blue */
+            --bg-gradient-start: #0f172a;       /* Slate 900 */
+            --bg-gradient-mid: #581c87;         /* Purple 900 */
+            --bg-gradient-end: #0f172a;         /* Slate 900 */
+            --accent-green: #22c55e;            /* Green 500 */
+            --accent-red: #ef4444;              /* Red 500 */
+            --accent-blue: #3b82f6;             /* Blue 500 */
+            --accent-purple: #a855f7;           /* Purple 500 */
+            --accent-yellow: #fbbf24;           /* Yellow 400 */
+        }
     </style>
 </head>
 <body>
@@ -64,8 +84,11 @@
             selectedMemberForManual: '',
             showAdminModal: false,
             showEventModal: false,
+            showRenameModal: false,
             newMemberName: '',
             newEventName: '',
+            renameMemberOld: '',
+            renameMemberNew: '',
             loading: true,
             loginEmail: '',
             loginPassword: ''
@@ -104,7 +127,7 @@
                     state.events = eventsDoc.data().list || [];
                 } else {
                     // Set default events if none exist
-                    state.events = ['Alliance EXP Growth', 'Alliance Arena', 'Battle of Ruins', 'Chess','Dragon Treasure Hunt', 'Mysterious Desert', 'Mystery Murder'];
+                    state.events = ['Bandit Attack', 'Battle Royale', 'Kingdom War', 'Territory War', 'Alliance War'];
                     await saveToFirebase('events', state.events);
                 }
 
@@ -266,11 +289,7 @@
         }
 
         function showImportDialog() {
-            const importType = prompt('What would you like to import? \n' + 
-                                      '~ 1: Members (members.csv) \n' + 
-                                      '~ 2: MVP History (mvp_history_details.txt) \n' + 
-                                      '~ 3: Title History (mvp_title.txt) \n\n' +
-                                      'Enter number (1, 2, or 3):');
+            const importType = prompt('What would you like to import?\\n\\n1 - Members (members.csv)\\n2 - MVP History (mvp_history_details.txt)\\n3 - Title History (mvp_title.txt)\\n\\nEnter number (1, 2, or 3):');
             
             if (!importType || !['1', '2', '3'].includes(importType)) {
                 return;
@@ -610,6 +629,8 @@
         function renderMainApp(root) {
             const eligibleCount = getEligibleMembers().length;
             const sortedMembers = [...state.members].sort((a, b) => a.name.localeCompare(b.name));
+            const sortedEvents = [...state.events].sort((a, b) => a.localeCompare(b));
+            const sortedEligibleMembers = getEligibleMembers().sort((a, b) => a.name.localeCompare(b.name));
             const recentMVPs = [...state.mvpHistory].reverse().slice(0, 35);
             const recentTitles = [...state.titleHistory].reverse().slice(0, 30);
 
@@ -655,7 +676,7 @@
                                     <label class="block text-white mb-2 font-semibold">Select Event</label>
                                     <select onchange="state.selectedEvent = this.value; render();" class="w-full px-3 py-2 rounded-lg bg-white/20 text-white border border-white/30">
                                         <option value="">-- Select Event --</option>
-                                        ${state.events.map(event => `<option value="${event}" ${state.selectedEvent === event ? 'selected' : ''}>${event}</option>`).join('')}
+                                        ${sortedEvents.map(event => `<option value="${event}" ${state.selectedEvent === event ? 'selected' : ''}>${event}</option>`).join('')}
                                     </select>
                                 </div>
 
@@ -682,7 +703,7 @@
                                         <label class="block text-white mb-2 font-semibold">Member</label>
                                         <select onchange="state.selectedMemberForTitle = this.value; render();" class="w-full px-3 py-2 rounded-lg bg-white/20 text-white border border-white/30">
                                             <option value="">-- Select Member --</option>
-                                            ${state.members.map(m => `<option value="${m.name}" ${state.selectedMemberForTitle === m.name ? 'selected' : ''}>${m.name}</option>`).join('')}
+                                            ${sortedMembers.map(m => `<option value="${m.name}" ${state.selectedMemberForTitle === m.name ? 'selected' : ''}>${m.name}</option>`).join('')}
                                         </select>
                                     </div>
                                     <div>
@@ -700,7 +721,7 @@
                                         <label class="block text-white mb-2 font-semibold">Select Member</label>
                                         <select onchange="state.selectedMemberForManual = this.value; render();" class="w-full px-3 py-2 rounded-lg bg-white/20 text-white border border-white/30">
                                             <option value="">-- Select Member --</option>
-                                            ${getEligibleMembers().map(m => `<option value="${m.name}" ${state.selectedMemberForManual === m.name ? 'selected' : ''}>${m.name}</option>`).join('')}
+                                            ${sortedEligibleMembers.map(m => `<option value="${m.name}" ${state.selectedMemberForManual === m.name ? 'selected' : ''}>${m.name}</option>`).join('')}
                                         </select>
                                     </div>
                                 ` : ''}
@@ -727,7 +748,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="bg-black/20 rounded-lg p-4 max-h-96 overflow-y-auto">
+                                <div class="bg-black/20 rounded-lg p-4 max-h-96 md:max-h-[564px] overflow-y-auto">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                                         ${sortedMembers.map(member => `
                                             <label class="flex items-center gap-2 text-white cursor-pointer hover:bg-white/10 p-2 rounded transition">
@@ -816,6 +837,12 @@
                                     </div>
                                 </div>
 
+                                <div class="mb-6">
+                                    <button onclick="state.showRenameModal = true; state.showAdminModal = false; render();" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">
+                                        ✏️ Rename Member
+                                    </button>
+                                </div>
+
                                 <div>
                                     <h3 class="text-white font-semibold mb-3">Alliance Members</h3>
                                     <div class="space-y-2 max-h-96 overflow-y-auto">
@@ -876,7 +903,7 @@
                                 <div>
                                     <h3 class="text-white font-semibold mb-3">Events</h3>
                                     <div class="space-y-2 max-h-96 overflow-y-auto">
-                                        ${state.events.sort().map(event => `
+                                        ${sortedEvents.map(event => `
                                             <div class="bg-white/10 rounded-lg p-3 flex items-center justify-between">
                                                 <span class="text-white font-medium">${event}</span>
                                                 <button onclick="removeEvent('${event.replace(/'/g, "\\'")}')\" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition">
@@ -891,6 +918,59 @@
                                 <button onclick="state.showEventModal = false; render();" class="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">
                                     Close
                                 </button>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Rename Member Modal -->
+                    ${state.showRenameModal ? `
+                        <div class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+                            <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg shadow-2xl p-6 max-w-md w-full">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                                        ✏️ Rename Member
+                                    </h2>
+                                    <button onclick="state.showRenameModal = false; state.showAdminModal = true; render();" class="text-white hover:text-red-400 transition">
+                                        <span class="w-6 h-6">${Icons.X()}</span>
+                                    </button>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="block text-white mb-2 font-semibold">Current Member Name</label>
+                                    <select 
+                                        id="renameOldInput"
+                                        class="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/30"
+                                    >
+                                        <option value="">-- Select Member --</option>
+                                        ${sortedMembers.map(m => `<option value="${m.name}" ${state.renameMemberOld === m.name ? 'selected' : ''}>${m.name}</option>`).join('')}
+                                    </select>
+                                </div>
+
+                                <div class="mb-6">
+                                    <label class="block text-white mb-2 font-semibold">New Member Name</label>
+                                    <input 
+                                        type="text" 
+                                        id="renameNewInput"
+                                        value="${state.renameMemberNew}"
+                                        placeholder="Enter new name"
+                                        class="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/30 placeholder-white/50"
+                                    />
+                                </div>
+
+                                <div class="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-3 mb-6">
+                                    <p class="text-yellow-200 text-sm">
+                                        ⚠️ This will rename the member across ALL data: members list, MVP history, and title history.
+                                    </p>
+                                </div>
+
+                                <div class="flex gap-2">
+                                    <button onclick="state.showRenameModal = false; state.showAdminModal = true; render();" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition">
+                                        Cancel
+                                    </button>
+                                    <button onclick="renameMember()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">
+                                        Rename
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ` : ''}
@@ -919,6 +999,26 @@
                 newEventInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
                         addEvent();
+                    }
+                });
+            }
+
+            // Add event listeners for rename member inputs
+            const renameOldInput = document.getElementById('renameOldInput');
+            if (renameOldInput) {
+                renameOldInput.addEventListener('change', (e) => {
+                    state.renameMemberOld = e.target.value;
+                });
+            }
+
+            const renameNewInput = document.getElementById('renameNewInput');
+            if (renameNewInput) {
+                renameNewInput.addEventListener('input', (e) => {
+                    state.renameMemberNew = e.target.value;
+                });
+                renameNewInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        renameMember();
                     }
                 });
             }
