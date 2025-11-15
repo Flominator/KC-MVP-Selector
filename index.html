@@ -727,7 +727,7 @@
                                 ` : ''}
                             </div>
 
-                            <button onclick="selectMVP()" class="mt-6 w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition flex items-center justify-center gap-2">
+                            <button type="button" id="selectMvpBtn" class="mt-6 w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition flex items-center justify-center gap-2">
                                 <span class="w-6 h-6">${Icons.Award()}</span>
                                 ${state.isTitles ? 'Assign Title' : 'Select MVP'}
                             </button>
@@ -743,8 +743,8 @@
                                         Alliance Members (${eligibleCount}/${state.members.length} Eligible)
                                     </h2>
                                     <div class="flex gap-2">
-                                        <button onclick="selectAllMembers()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition">Select All</button>
-                                        <button onclick="deselectAllMembers()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition">Deselect All</button>
+                                        <button type="button" id="selectAllBtn" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition">Select All</button>
+                                        <button type="button" id="deselectAllBtn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition">Deselect All</button>
                                     </div>
                                 </div>
                                 
@@ -830,7 +830,7 @@
                                             placeholder="Enter member name"
                                             class="flex-1 px-4 py-2 rounded-lg bg-white/10 text-white border border-white/30 placeholder-white/50"
                                         />
-                                        <button onclick="addMember()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition">
+                                        <button type="button" id="addMemberBtn" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition">
                                             <span class="w-5 h-5">${Icons.Plus()}</span>
                                             Add
                                         </button>
@@ -854,7 +854,7 @@
                                                         ${member.eligible ? '✓ Eligible' : '✗ Not Eligible'}
                                                     </span>
                                                 </div>
-                                                <button onclick="removeMember('${member.name}')" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition">
+                                                <button onclick="removeMember('${member.name}')" class="removeMemberBtn bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition" data-member-name="${member.name}">
                                                     <span class="w-4 h-4">${Icons.Trash2()}</span>
                                                 </button>
                                             </div>
@@ -893,7 +893,7 @@
                                             placeholder="Enter event name"
                                             class="flex-1 px-4 py-2 rounded-lg bg-white/10 text-white border border-white/30 placeholder-white/50"
                                         />
-                                        <button onclick="addEvent()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition">
+                                        <button type="button" id="addEventBtn" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition">
                                             <span class="w-5 h-5">${Icons.Plus()}</span>
                                             Add
                                         </button>
@@ -903,10 +903,10 @@
                                 <div>
                                     <h3 class="text-white font-semibold mb-3">Events</h3>
                                     <div class="space-y-2 max-h-96 overflow-y-auto">
-                                        ${sortedEvents.map(event => `
+                                        ${sortedEvents.map((event, idx) => `
                                             <div class="bg-white/10 rounded-lg p-3 flex items-center justify-between">
                                                 <span class="text-white font-medium">${event}</span>
-                                                <button onclick="removeEvent('${event.replace(/'/g, "\\'")}')\" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition">
+                                                <button type="button" data-event-name="${event}" class="removeEventBtn bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition">
                                                     <span class="w-4 h-4">${Icons.Trash2()}</span>
                                                 </button>
                                             </div>
@@ -967,7 +967,7 @@
                                     <button onclick="state.showRenameModal = false; state.showAdminModal = true; render();" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition">
                                         Cancel
                                     </button>
-                                    <button onclick="renameMember()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">
+                                    <button type="button" id="renameMemberBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition">
                                         Rename
                                     </button>
                                 </div>
@@ -1031,6 +1031,7 @@
             if (addMemberBtn) {
                 addMemberBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     addMember();
                 });
             }
@@ -1039,6 +1040,7 @@
             if (addEventBtn) {
                 addEventBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     addEvent();
                 });
             }
@@ -1047,6 +1049,7 @@
             if (renameMemberBtn) {
                 renameMemberBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     renameMember();
                 });
             }
@@ -1055,6 +1058,7 @@
             if (selectMvpBtn) {
                 selectMvpBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     selectMVP();
                 });
             }
@@ -1063,6 +1067,7 @@
             if (selectAllBtn) {
                 selectAllBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     selectAllMembers();
                 });
             }
@@ -1071,9 +1076,35 @@
             if (deselectAllBtn) {
                 deselectAllBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     deselectAllMembers();
                 });
             }
+
+            // Event delegation for dynamically created remove buttons
+            document.addEventListener('click', (e) => {
+                // Remove Event button
+                if (e.target.closest('.removeEventBtn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const btn = e.target.closest('.removeEventBtn');
+                    const eventName = btn.getAttribute('data-event-name');
+                    if (eventName) {
+                        removeEvent(eventName);
+                    }
+                }
+                
+                // Remove Member button
+                if (e.target.closest('.removeMemberBtn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const btn = e.target.closest('.removeMemberBtn');
+                    const memberName = btn.getAttribute('data-member-name');
+                    if (memberName) {
+                        removeMember(memberName);
+                    }
+                }
+            });
         }
 
         // Auth State Listener
