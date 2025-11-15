@@ -748,7 +748,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="bg-black/20 rounded-lg p-4 max-h-96 md:max-h-[564px] overflow-y-auto">
+                                <div class="bg-black/20 rounded-lg p-4 max-h-96 overflow-y-auto">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                                         ${sortedMembers.map(member => `
                                             <label class="flex items-center gap-2 text-white cursor-pointer hover:bg-white/10 p-2 rounded transition">
@@ -985,6 +985,7 @@
                 });
                 newMemberInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
+                        e.preventDefault();
                         addMember();
                     }
                 });
@@ -998,6 +999,7 @@
                 });
                 newEventInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
+                        e.preventDefault();
                         addEvent();
                     }
                 });
@@ -1018,8 +1020,58 @@
                 });
                 renameNewInput.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') {
+                        e.preventDefault();
                         renameMember();
                     }
+                });
+            }
+
+            // Button event listeners
+            const addMemberBtn = document.getElementById('addMemberBtn');
+            if (addMemberBtn) {
+                addMemberBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    addMember();
+                });
+            }
+
+            const addEventBtn = document.getElementById('addEventBtn');
+            if (addEventBtn) {
+                addEventBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    addEvent();
+                });
+            }
+
+            const renameMemberBtn = document.getElementById('renameMemberBtn');
+            if (renameMemberBtn) {
+                renameMemberBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    renameMember();
+                });
+            }
+
+            const selectMvpBtn = document.getElementById('selectMvpBtn');
+            if (selectMvpBtn) {
+                selectMvpBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    selectMVP();
+                });
+            }
+
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            if (selectAllBtn) {
+                selectAllBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    selectAllMembers();
+                });
+            }
+
+            const deselectAllBtn = document.getElementById('deselectAllBtn');
+            if (deselectAllBtn) {
+                deselectAllBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    deselectAllMembers();
                 });
             }
         }
