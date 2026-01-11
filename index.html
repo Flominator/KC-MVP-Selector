@@ -6,7 +6,7 @@
     <title>Alliance MVP Selector</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK v10 (Compat mode for easier syntax) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -48,10 +48,39 @@
             --accent-purple: #a855f7;
             --accent-yellow: #fbbf24;
         }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(147, 51, 234, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(147, 51, 234, 0.7);
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
+    
+    <!-- Error boundary -->
+    <script>
+        window.addEventListener('error', (event) => {
+            console.error('Global error caught:', event.error);
+            // Don't show alert for every error, just log it
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            // Don't show alert for every rejection, just log it
+        });
+    </script>
     
     <!-- Load the app JavaScript -->
     <script src="app.js"></script>
