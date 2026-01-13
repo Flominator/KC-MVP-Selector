@@ -39,9 +39,10 @@ let state = {
     isCS: false,
     isTitles: false,
     isManualMVP: false,
-    selectedTitle: 'Earl',
+    selectedTitle: 'Earl/Countess',
     selectedMemberForTitle: '',
     selectedMemberForManual: '',
+    titleSource: 'individual', // 'individual' or 'alliance'
     showAdminModal: false,
     showEventModal: false,
     showRenameModal: false,
@@ -456,6 +457,15 @@ function selectMVP() {
             return;
         }
         
+        const member = state.members.find(m => m.name === state.selectedMemberForManual);
+        const mvpCount = getMVPCount(state.selectedMemberForManual);
+        const weight = calculatePenaltyWeight(mvpCount).toFixed(2);
+        
+        // Confirmation prompt with weight info
+        if (!confirm(`Confirm MVP Selection:\n\nMember: ${state.selectedMemberForManual}\nCurrent MVPs: ${mvpCount}\nCurrent Weight: ${weight}\n\nIs this member eligible for MVP?`)) {
+            return;
+        }
+        
         const eventName = state.selectedEvent || 'Manual Selection';
         const timestamp = new Date().toLocaleString();
         
@@ -465,6 +475,9 @@ function selectMVP() {
             timestamp: timestamp,
             method: 'manual'
         });
+        
+        // Auto-cleanup history
+        cleanupMVPHistory();
         
         saveToFirebase('mvpHistory', state.mvpHistory);
         
@@ -507,6 +520,14 @@ function selectMVP() {
             selectedMember = eligible[eligible.length - 1];
         }
         
+        const mvpCount = getMVPCount(selectedMember.name);
+        const weight = calculatePenaltyWeight(mvpCount).toFixed(2);
+        
+        // Confirmation prompt with weight info
+        if (!confirm(`Random Selection Result:\n\nMember: ${selectedMember.name}\nEvent: ${state.selectedEvent}\nCurrent MVPs: ${mvpCount}\nCurrent Weight: ${weight}\n\nIs this member eligible for MVP?`)) {
+            return;
+        }
+        
         const timestamp = new Date().toLocaleString();
         
         state.mvpHistory.push({
@@ -516,12 +537,26 @@ function selectMVP() {
             method: 'weighted-random'
         });
         
+        // Auto-cleanup history
+        cleanupMVPHistory();
+        
         saveToFirebase('mvpHistory', state.mvpHistory);
         
         alert(`✅ ${selectedMember.name} selected as MVP for ${state.selectedEvent}!`);
     }
     
     render();
+}
+
+// Auto-cleanup function for MVP history
+function cleanupMVPHistory() {
+    const eligibleCount = getEligibleMembers().length;
+    const maxHistory = Math.max(10, eligibleCount);
+    
+    // Only keep the most recent entries
+    if (state.mvpHistory.length > maxHistory) {
+        state.mvpHistory = state.mvpHistory.slice(-maxHistory);
+    }
 }
 
 function assignTitle() {
@@ -540,73 +575,30 @@ function assignTitle() {
         return;
     }
     
+    // Ask if title is earned individually or given by alliance
+    const isIndividual = confirm(`Title Assignment:\n\nMember: ${state.selectedMemberForTitle}\nTitle: ${state.selectedTitle}\n\nWas this title earned INDIVIDUALLY?\n\nClick OK for Individual\nClick Cancel for Alliance-Given`);
+    
+    const titleToAssign = isIndividual ? state.selectedTitle : `${state.selectedTitle} (ally)`;
+    
     const timestamp = new Date().toLocaleString();
     
     state.titleHistory.push({
         member: state.selectedMemberForTitle,
-        title: state.selectedTitle,
-        timestamp: timestamp
+        title: titleToAssign,
+        timestamp: timestamp,
+        source: isIndividual ? 'individual' : 'alliance'
     });
     
     saveToFirebase('titleHistory', state.titleHistory);
     
-    alert(`✅ ${state.selectedTitle} title assigned to ${state.selectedMemberForTitle}!`);
+    alert(`✅ ${titleToAssign} title assigned to ${state.selectedMemberForTitle}!`);
     state.selectedMemberForTitle = '';
     
     render();
 }
 
-function clearMVPHistory() {
-    if (!isModerator()) {
-        alert('Only moderators can clear history.');
-        return;
-    }
-    if (!confirm('Are you sure you want to clear ALL MVP history? This cannot be undone!')) {
-        return;
-    }
-    state.mvpHistory = [];
-    saveToFirebase('mvpHistory', state.mvpHistory);
-    render();
-}
-
-function clearTitleHistory() {
-    if (!isModerator()) {
-        alert('Only moderators can clear history.');
-        return;
-    }
-    if (!confirm('Are you sure you want to clear ALL title history? This cannot be undone!')) {
-        return;
-    }
-    state.titleHistory = [];
-    saveToFirebase('titleHistory', state.titleHistory);
-    render();
-}
-
-function removeMVPEntry(index) {
-    if (!isModerator()) {
-        alert('Only moderators can remove entries.');
-        return;
-    }
-    if (!confirm('Remove this MVP entry?')) {
-        return;
-    }
-    state.mvpHistory.splice(index, 1);
-    saveToFirebase('mvpHistory', state.mvpHistory);
-    render();
-}
-
-function removeTitleEntry(index) {
-    if (!isModerator()) {
-        alert('Only moderators can remove entries.');
-        return;
-    }
-    if (!confirm('Remove this title entry?')) {
-        return;
-    }
-    state.titleHistory.splice(index, 1);
-    saveToFirebase('titleHistory', state.titleHistory);
-    render();
-}
+// Removed clearMVPHistory, clearTitleHistory, removeMVPEntry, and removeTitleEntry functions
+// History management should only be done through Firestore backend for data integrity
 
 // Render Functions
 function render() {
@@ -908,9 +900,9 @@ function renderMainApp() {
                                     onchange="state.selectedTitle = this.value; render();"
                                     class="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/30"
                                 >
-                                    <option value="Earl" ${state.selectedTitle === 'Earl' ? 'selected' : ''}>Earl</option>
-                                    <option value="Marquis" ${state.selectedTitle === 'Marquis' ? 'selected' : ''}>Marquis</option>
-                                    <option value="Duke" ${state.selectedTitle === 'Duke' ? 'selected' : ''}>Duke</option>
+                                    <option value="Earl/Countess" ${state.selectedTitle === 'Earl/Countess' ? 'selected' : ''}>Earl/Countess</option>
+                                    <option value="Duke/Duchess" ${state.selectedTitle === 'Duke/Duchess' ? 'selected' : ''}>Duke/Duchess</option>
+                                    <option value="King/Queen" ${state.selectedTitle === 'King/Queen' ? 'selected' : ''}>King/Queen</option>
                                 </select>
                             </div>
                             
@@ -1032,21 +1024,10 @@ function renderMainApp() {
                                     </div>
                                 ` : recentMVPs.map((entry, idx) => `
                                     <div class="p-3 bg-white/5 hover:bg-white/10 rounded-lg transition">
-                                        <div class="flex items-start justify-between">
-                                            <div class="flex-1">
-                                                <p class="text-white font-semibold">${entry.member}</p>
-                                                <p class="text-gray-400 text-sm">${entry.event}</p>
-                                                <p class="text-gray-500 text-xs">${entry.timestamp}</p>
-                                            </div>
-                                            ${state.userRole === 'moderator' ? `
-                                                <button 
-                                                    onclick="removeMVPEntry(${state.mvpHistory.length - 1 - idx})"
-                                                    class="p-1 hover:bg-red-500/20 rounded transition text-red-400"
-                                                    title="Remove entry"
-                                                >
-                                                    <span class="w-4 h-4">${Icons.X()}</span>
-                                                </button>
-                                            ` : ''}
+                                        <div class="flex-1">
+                                            <p class="text-white font-semibold">${entry.member}</p>
+                                            <p class="text-gray-400 text-sm">${entry.event}</p>
+                                            <p class="text-gray-500 text-xs">${entry.timestamp}</p>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1057,21 +1038,10 @@ function renderMainApp() {
                                     </div>
                                 ` : recentTitles.map((entry, idx) => `
                                     <div class="p-3 bg-white/5 hover:bg-white/10 rounded-lg transition">
-                                        <div class="flex items-start justify-between">
-                                            <div class="flex-1">
-                                                <p class="text-white font-semibold">${entry.member}</p>
-                                                <p class="text-yellow-400 text-sm">👑 ${entry.title}</p>
-                                                <p class="text-gray-500 text-xs">${entry.timestamp}</p>
-                                            </div>
-                                            ${state.userRole === 'moderator' ? `
-                                                <button 
-                                                    onclick="removeTitleEntry(${state.titleHistory.length - 1 - idx})"
-                                                    class="p-1 hover:bg-red-500/20 rounded transition text-red-400"
-                                                    title="Remove entry"
-                                                >
-                                                    <span class="w-4 h-4">${Icons.X()}</span>
-                                                </button>
-                                            ` : ''}
+                                        <div class="flex-1">
+                                            <p class="text-white font-semibold">${entry.member}</p>
+                                            <p class="text-yellow-400 text-sm">👑 ${entry.title}</p>
+                                            <p class="text-gray-500 text-xs">${entry.timestamp}</p>
                                         </div>
                                     </div>
                                 `).join('')}
@@ -1080,12 +1050,9 @@ function renderMainApp() {
                         
                         ${state.userRole === 'moderator' ? `
                             <div class="mt-4 pt-4 border-t border-white/10">
-                                <button 
-                                    onclick="${state.isTitles ? 'clearTitleHistory()' : 'clearMVPHistory()'}"
-                                    class="w-full px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-lg transition text-sm"
-                                >
-                                    Clear ${state.isTitles ? 'Title' : 'MVP'} History
-                                </button>
+                                <p class="text-gray-400 text-sm text-center">
+                                    ℹ️ History auto-managed. Edit via Firestore if needed.
+                                </p>
                             </div>
                         ` : ''}
                     </div>
