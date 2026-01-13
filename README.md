@@ -2,21 +2,45 @@
 
 A web-based application for managing alliance MVP (Most Valuable Player) selection and title assignments with real-time Firebase synchronization. Perfect for gaming alliances, guilds, or teams that need a fair and transparent system for selecting MVPs and assigning titles.
 
+![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Firebase](https://img.shields.io/badge/Firebase-10.7.1-orange.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
 ## ✨ Features
 
+### Core Features
 - 🎲 **Weighted Random MVP Selection** - Fair algorithm that reduces selection probability for recent MVPs
 - ✋ **Manual MVP Selection** - Option for moderators to manually assign MVP
-- 👑 **Title Management** - Assign noble titles (Earl, Duke) to members
+- ✅ **MVP Confirmation Prompts** - Verify eligibility with weight information before finalizing selection
+- 👑 **Title Management** - Assign noble titles (Earl/Countess, Duke/Duchess, King/Queen) to members
+- 🏷️ **Title Source Tracking** - Track whether titles were earned individually or given by alliance
 - 👥 **Member Management** - Add, remove, and rename alliance members
 - 📊 **History Tracking** - Complete history of all MVP selections and title assignments
+- 🗑️ **Auto-Cleanup** - MVP history automatically maintained based on eligible player count
 - 🔐 **Role-Based Access** - Moderators can modify data, viewers can only view
+- 🔒 **Protected History** - History entries can only be modified through Firestore backend
 - 🔄 **Real-time Sync** - All changes sync instantly across all users via Firebase
 - 📱 **Responsive Design** - Works on desktop, tablet, and mobile devices
 - 🎯 **Event-Based Selection** - Track MVPs by specific events (wars, battles, etc.)
+- 📱 **Device support** - Accessible and usable on both PC and smartphones
+
+## 📸 Screenshots
+
+### Main Dashboard (Moderator Role)
+The main interface showing MVP selection, title assignment, member list, and history.
+
+![Moderator Dashboard](images/ModeratorView.png)
+
+### Admin Panel
+Moderator interface for managing members, events, and viewing database information.
+
+![Moderator AdminPanel](images/Moderator_AdminPanel.png)
+
+### Main Dashboard (Viewer Role)
+The main interface showing member list, and history.
+
+![Viewer Dashboard](images/ViewerView.png)
 
 ## 🚀 Quick Start (For End Users)
 
@@ -49,7 +73,6 @@ cd alliance-mvp-selector
 ### Step 2: Create Firebase Project
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
-- Create and account if you dion't already have. 
 2. Click **Add project** (or select existing project)
 3. Enter project name (e.g., "my-alliance-mvp")
 4. Choose whether to enable Google Analytics (optional)
@@ -251,7 +274,7 @@ npm install -g vercel
 vercel
 ```
 
-#### Option D: GitHub Pages (My current choice)
+#### Option D: GitHub Pages (My Current Choice)
 
 1. Create a new repository on GitHub
 2. Push your code:
@@ -321,15 +344,23 @@ Moderators can add members, select MVPs, assign titles, and modify data.
 3. If Random mode:
    - Ensure eligible members are selected (checkboxes)
    - Click "Select Random MVP"
+   - **Review confirmation** showing member name, MVP count, and weight
+   - Click OK to confirm or Cancel to abort
 4. If Manual mode:
    - Select member from dropdown
    - Click "Assign MVP"
+   - **Review confirmation** showing member stats
+   - Click OK to confirm
 
 #### Assigning Titles
 
-1. Select title from dropdown (Earl, Marquis, Duke)
+1. Select title from dropdown (Earl/Countess, Duke/Duchess, King/Queen)
 2. Select member from dropdown
 3. Click "Assign Title"
+4. **Choose title source**:
+   - Click **OK** if earned individually
+   - Click **Cancel** if given by alliance (adds "(ally)" suffix)
+5. Confirm assignment
 
 #### Managing Members
 
@@ -344,10 +375,16 @@ Moderators can add members, select MVPs, assign titles, and modify data.
 1. During MVP selection, click the ⚙️ icon next to event dropdown
 2. Add new events or remove existing ones
 
+#### Managing History
+
+- **View**: All users can view MVP and title history
+- **Edit/Delete**: Must be done through Firebase Console (Firestore Database)
+- History automatically maintained (old MVP entries auto-removed based on eligible player count)
+
 ### For All Users
 
-- View member list with MVP counts
-- See recent MVP history
+- View member list with MVP counts and weights
+- See recent MVP history (last 10+ entries)
 - See recent title history
 - Toggle between MVP and Title history tabs
 
@@ -365,7 +402,7 @@ alliance/
           ├── mvpHistory/
           │   └── list: [{member: "Player1", event: "War", timestamp: "...", method: "weighted-random"}, ...]
           ├── titleHistory/
-          │   └── list: [{member: "Player1", title: "Duke", timestamp: "..."}, ...]
+          │   └── list: [{member: "Player1", title: "Duke/Duchess (ally)", timestamp: "...", source: "alliance"}, ...]
           └── events/
               └── list: ["Bandit Attack", "Battle Royale", ...]
 ```
@@ -383,11 +420,11 @@ Then create the corresponding structure in Firestore.
 
 ### Changing Titles
 
-Edit the title dropdown in the `renderMainApp()` function around line 560:
+Edit the title dropdown in the `renderMainApp()` function around line 900:
 ```javascript
-<option value="Earl">Earl</option>
-<option value="Marquis">Marquis</option>
-<option value="Duke">Duke</option>
+<option value="Earl/Countess">Earl/Countess</option>
+<option value="Duke/Duchess">Duke/Duchess</option>
+<option value="King/Queen">King/Queen</option>
 // Add more titles here
 ```
 
@@ -554,19 +591,26 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🗺️ Roadmap
 
 Future features under consideration:
-... TBD
+Let me know if you have suggestions. 
 
-## 📈 Changelog
+- [ ] Export data to CSV/Excel
+- [ ] Import members from CSV
+- [ ] Member statistics dashboard
+- [ ] Multiple alliance support in single instance
+      
 
-### Version 0.5.0 (Current)
-- Initial release
-- MVP selection (weighted random and manual)
-- Title assignment
-- Member management
-- Event management
-- History tracking
-- Role-based access control
-- Real-time Firebase sync
+## 📈 Version History
+
+For detailed version history and changelog, see [CHANGELOG.md](CHANGELOG.md).
+
+**Current Version**: 1.1.0
+
+**Recent Updates**:
+- MVP confirmation prompts with weight information
+- Title source tracking (individual vs alliance-given)
+- Automatic MVP history cleanup
+- Updated title options (Earl/Countess, Duke/Duchess, King/Queen)
+- Protected history (edit via Firestore only)
 
 ---
 
