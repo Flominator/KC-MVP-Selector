@@ -2,7 +2,7 @@
 
 A web-based application for managing alliance MVP (Most Valuable Player) selection and title assignments with real-time Firebase synchronization. Perfect for gaming alliances, guilds, or teams that need a fair and transparent system for selecting MVPs and assigning titles.
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.1-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Firebase](https://img.shields.io/badge/Firebase-10.7.1-orange.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
@@ -21,9 +21,9 @@ A web-based application for managing alliance MVP (Most Valuable Player) selecti
 - 🔐 **Role-Based Access** - Moderators can modify data, viewers can only view
 - 🔒 **Protected History** - History entries can only be modified through Firestore backend
 - 🔄 **Real-time Sync** - All changes sync instantly across all users via Firebase
-- 📱 **Responsive Design** - Works on desktop, tablet, and mobile devices
+- 📱 **Cross-Platform** - Accessible and fully functional on PC, tablets, and smartphones
 - 🎯 **Event-Based Selection** - Track MVPs by specific events (wars, battles, etc.)
-- 📱 **Device support** - Accessible and usable on both PC and smartphones
+- 🌐 **Cross-Server Support** - Mark events as cross-server with CS checkbox
 
 ## 📸 Screenshots
 
@@ -338,15 +338,16 @@ Moderators can add members, select MVPs, assign titles, and modify data.
 #### Selecting MVP
 
 1. Click on the event dropdown and select the event type
-2. Choose selection mode:
+2. (Optional) Check the "Cross-Server (CS)" box if this is a cross-server event
+3. Choose selection mode:
    - **Random**: Weighted random selection (recent MVPs have lower probability)
    - **Manual**: Manually choose a specific member
-3. If Random mode:
+4. If Random mode:
    - Ensure eligible members are selected (checkboxes)
    - Click "Select Random MVP"
    - **Review confirmation** showing member name, MVP count, and weight
    - Click OK to confirm or Cancel to abort
-4. If Manual mode:
+5. If Manual mode:
    - Select member from dropdown
    - Click "Assign MVP"
    - **Review confirmation** showing member stats
@@ -603,9 +604,12 @@ Let me know if you have suggestions.
 
 For detailed version history and changelog, see [CHANGELOG.md](CHANGELOG.md).
 
-**Current Version**: 1.1.0
+**Current Version**: 1.1.1
 
-**Recent Updates**:
+**Recent Updates** (v1.1.1):
+- Cross-server (CS) checkbox for event tracking
+
+**Previous Updates** (v1.1.0):
 - MVP confirmation prompts with weight information
 - Title source tracking (individual vs alliance-given)
 - Automatic MVP history cleanup
