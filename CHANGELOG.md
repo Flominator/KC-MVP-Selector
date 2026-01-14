@@ -5,6 +5,18 @@ All notable changes to Alliance MVP Selector will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-01-13
+
+### Added
+- Cross-Server (CS) checkbox for MVP selection
+  - Checkbox appears below event selection
+  - When checked, appends " CS" to event name in MVP history
+  - Allows differentiation between internal and cross-server events
+- Device compatibility information in README
+
+### Changed
+- Event names in MVP history now support " CS" suffix for cross-server events
+
 ## [1.1.0] - 2025-01-13
 
 ### Added
