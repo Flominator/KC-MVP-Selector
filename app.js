@@ -466,7 +466,11 @@ function selectMVP() {
             return;
         }
         
-        const eventName = state.selectedEvent || 'Manual Selection';
+        let eventName = state.selectedEvent || 'Manual Selection';
+        // Append " CS" if cross-server checkbox is checked
+        if (state.isCS && eventName !== 'Manual Selection') {
+            eventName = eventName + ' CS';
+        }
         const timestamp = new Date().toLocaleString();
         
         state.mvpHistory.push({
@@ -523,8 +527,14 @@ function selectMVP() {
         const mvpCount = getMVPCount(selectedMember.name);
         const weight = calculatePenaltyWeight(mvpCount).toFixed(2);
         
+        // Prepare event name with CS suffix if applicable
+        let eventName = state.selectedEvent;
+        if (state.isCS) {
+            eventName = eventName + ' CS';
+        }
+        
         // Confirmation prompt with weight info
-        if (!confirm(`Random Selection Result:\n\nMember: ${selectedMember.name}\nEvent: ${state.selectedEvent}\nCurrent MVPs: ${mvpCount}\nCurrent Weight: ${weight}\n\nIs this member eligible for MVP?`)) {
+        if (!confirm(`Random Selection Result:\n\nMember: ${selectedMember.name}\nEvent: ${eventName}\nCurrent MVPs: ${mvpCount}\nCurrent Weight: ${weight}\n\nIs this member eligible for MVP?`)) {
             return;
         }
         
@@ -532,7 +542,7 @@ function selectMVP() {
         
         state.mvpHistory.push({
             member: selectedMember.name,
-            event: state.selectedEvent,
+            event: eventName,
             timestamp: timestamp,
             method: 'weighted-random'
         });
@@ -833,6 +843,20 @@ function renderMainApp() {
                                         ⚙️
                                     </button>
                                 </div>
+                            </div>
+                            
+                            <!-- Cross-Server Checkbox -->
+                            <div class="mb-4">
+                                <label class="flex items-center gap-2 text-white cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        ${state.isCS ? 'checked' : ''}
+                                        onchange="state.isCS = this.checked; render();"
+                                        class="w-5 h-5 rounded cursor-pointer"
+                                    />
+                                    <span class="font-semibold">Cross-Server (CS)</span>
+                                    <span class="text-gray-400 text-sm">- Adds "CS" to event name</span>
+                                </label>
                             </div>
                             
                             <!-- Selection Mode Toggle -->
