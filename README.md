@@ -2,7 +2,7 @@
 
 A web-based application for managing alliance MVP (Most Valuable Player) selection and title assignments with real-time Firebase synchronization. Perfect for gaming alliances, guilds, or teams that need a fair and transparent system for selecting MVPs and assigning titles.
 
-![Version](https://img.shields.io/badge/version-1.1.1-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.2-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Firebase](https://img.shields.io/badge/Firebase-10.7.1-orange.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
@@ -604,10 +604,14 @@ Let me know if you have suggestions.
 
 For detailed version history and changelog, see [CHANGELOG.md](CHANGELOG.md).
 
-**Current Version**: 1.1.1
+**Current Version**: 1.1.2
+
+**Recent Updates** (v1.1.2):
+- History panels now show ALL entries instead of just last 10
 
 **Recent Updates** (v1.1.1):
 - Cross-server (CS) checkbox for event tracking
+- Device support documentation
 
 **Previous Updates** (v1.1.0):
 - MVP confirmation prompts with weight information
