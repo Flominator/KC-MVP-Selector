@@ -5,7 +5,14 @@ All notable changes to Alliance MVP Selector will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.1] - 2025-01-14
+## [1.1.2] - 2026-02-22
+
+### Changed
+- MVP history now displays ALL entries instead of just the last 10
+  - Auto-cleanup still maintains reasonable history size
+  - Entries displayed in reverse chronological order (newest first)
+
+## [1.1.1] - 2026-01-14
 
 ### Added
 - Cross-Server (CS) checkbox for MVP selection
@@ -17,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Event names in MVP history now support " CS" suffix for cross-server events
 
-## [1.1.0] - 2025-01-13
+## [1.1.0] - 2026-01-13
 
 ### Added
 - **MVP Selection Confirmation Prompts**: Both random and manual MVP selections now display a confirmation dialog showing:
@@ -69,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated title dropdown rendering (line 897-907)
 - Updated history display rendering (line 1020-1077)
 
-## [1.0.0] - 2025-01-11
+## [1.0.0] - 2026-01-11
 
 ### Added
 - Initial release of Alliance MVP Selector
@@ -192,7 +199,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-- **1.0.0** (2025-01-11) - Initial release
+- **1.0.0** (2026-01-11) - Initial release
 
 ---
 
