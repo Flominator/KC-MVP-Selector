@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.2] - 2026-02-22
 
 ### Changed
-- MVP history now displays ALL entries instead of just the last 10
+- MVP and Title history now displays ALL entries instead of just the last 10
   - Auto-cleanup still maintains reasonable history size
   - Entries displayed in reverse chronological order (newest first)
 
