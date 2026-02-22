@@ -762,7 +762,7 @@ function renderErrorScreen() {
 
 function renderMainApp() {
     const sortedMembers = [...state.members].sort((a, b) => a.name.localeCompare(b.name));
-    const recentMVPs = state.mvpHistory.slice(-10).reverse();
+    const recentMVPs = [...state.mvpHistory].reverse();
     const recentTitles = state.titleHistory.slice(-10).reverse();
     
     return `
@@ -1421,3 +1421,4 @@ auth.onAuthStateChanged((user) => {
 
 // Initial render
 render();
+
