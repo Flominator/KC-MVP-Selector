@@ -763,7 +763,7 @@ function renderErrorScreen() {
 function renderMainApp() {
     const sortedMembers = [...state.members].sort((a, b) => a.name.localeCompare(b.name));
     const recentMVPs = [...state.mvpHistory].reverse();
-    const recentTitles = state.titleHistory.slice(-10).reverse();
+    const recentTitles = [...state.titleHistory].reverse();
     
     return `
         <div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -1421,4 +1421,5 @@ auth.onAuthStateChanged((user) => {
 
 // Initial render
 render();
+
 
